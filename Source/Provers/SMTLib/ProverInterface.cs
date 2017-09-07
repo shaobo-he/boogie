@@ -2380,6 +2380,17 @@ namespace Microsoft.Boogie.SMTLib
         if (resp.Name == "_" && resp.ArgCount == 2 && resp.Arguments[0].Name.StartsWith("bv")) // bitvector
             return new BvConst(Microsoft.Basetypes.BigNum.FromString(resp.Arguments[0].Name.Substring("bv".Length)),
                 int.Parse(resp.Arguments[1].Name));
+        if (resp.Name == "fp" && resp.ArgCount == 3)
+        {
+            var sign = int.Parse(resp.Arguments[0].Arguments[1].Name) == 1;
+            var exponentExpr = resp.Arguments[1];
+            var significandExpr = resp.Arguments[2];
+            var exponent = exponentExpr.Arguments[0].Name.Substring("bv".Length);
+            var exponentSize = exponentExpr.Arguments[1];
+            var significant = significandExpr.Arguments[0].Name.Substring("bv".Length);
+            var significantSize = significandExpr.Arguments[1];
+            return Microsoft.Basetypes.BigFloat.FromString((sign?"-":"")+significant+"e"+exponent+"f"+significantSize+"e"+exponentSize);
+        }
         var ary = GetArrayFromProverResponse(resp);
         if (ary != null)
             return ary;
